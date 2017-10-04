@@ -40,7 +40,7 @@ mapped_reads_folder<-'./mapped_reads/';
 con_seqs_dir<-'./consensus_seqs_all';
 
 #Make consensus sequences against HSV1 and 2 (SD90e and HG52)--returns TRUE if this worked
-conseq<-clean_consensus_hhv6(sampname,merged_bam_folder,mapped_reads_folder);
+conseq<-clean_consensus_hsv(sampname,merged_bam_folder,mapped_reads_folder);
 
 #Prepare seqs for annotation -- will make separate folders for A and B
 if(conseq==TRUE){
