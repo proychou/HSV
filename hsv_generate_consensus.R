@@ -31,7 +31,7 @@ if(length(args)==0){
 }
 
 #For testing (these args should come from command line)
-# s1<-'/fh/fast/jerome_k/HHV6_PR/fastq_files/2017_08_10//ABI-HHV6A_S385_L001_R1_001.fastq.gz'
+# s1<-'/fh/fast/jerome_k/HSV_WGS/fastq_files/NGS09_HSV1_morereads/2016-01040_S451_L001_R1_001.fastq'
 
 #Files, directories, target site
 merged_bam_folder<-'./remapped_reads/'; 
