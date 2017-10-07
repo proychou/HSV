@@ -6,12 +6,14 @@
 #Usage: 
 #First build reference for bowtie and make a copy of the ref seqs:
 #		module load bowtie2
-# 		bowtie2-build './NC_001806.2.fasta' hsv1_ref
-# 		bowtie2-build './NC_001798.2.fasta' hsv2_ref_hg52
-# 		bowtie2-build './KF781518.1.fasta' hsv2_sd90e
-# 		cp './NC_001806.2.fasta' hsv1_ref.fasta
-# 		cp './NC_001798.2.fasta' hsv2_ref_hg52.fasta
-# 		cp './KF781518.1.fasta' hsv2_sd90e.fasta
+# 		bowtie2-build './refs/NC_001806.2.fasta' ./refs/hsv1_ref
+# 		bowtie2-build './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52
+# 		bowtie2-build './refs/KF781518.1.fasta' ./refs/hsv2_sd90e
+# 		cp './refs/NC_001806.2.fasta' ./refs/hsv1_ref.fasta
+# 		cp './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52.fasta
+# 		cp './refs/KF781518.1.fasta' ./refs/hsv2_sd90e.fasta
+# 		cat ./refs/hsv1_ref.fasta ./refs/hsv2_ref_hg52.fasta ./refs/hsv2_sd90e.fasta > ./refs/hsv_refs.fasta
+# 		prokka-genbank_to_fasta_db ./refs/NC_001806.2.gb ./refs/NC_001798.2.gb ./refs/KF781518.1.gb > ./refs/HSV_proteins.faa
 #For paired-end library
 #		hsv1_pipeline.sh -1 yourreads_r1.fastq.gz -2 yourreads_r2.fastq.gz
 #For single-end library
@@ -119,7 +121,7 @@ fastqc './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' './pre
 printf "\n\nMapping reads to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
 mkdir -p ./mapped_reads
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bowtie2 -x $ref -1 './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' -2 './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './mapped_reads/'$sampname'_'$ref'.sam'
+bowtie2 -x ./refs/$ref -1 './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' -2 './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './mapped_reads/'$sampname'_'$ref'.sam'
 done
 
 #Assemble with SPAdes 
@@ -169,7 +171,7 @@ if [[ $filter == "true" ]]
 then
 printf "\n\nK-mer filtering using hhv6_refs.fasta ... \n\n\n"
 mkdir -p ./filtered_fastq/
-bbduk.sh in='./preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' out='./filtered_fastq/'$sampname'_unmatched.fastq.gz' outm='./filtered_fastq/'$sampname'_matched.fastq.gz' ref='./hsv_refs.fasta' k=31 hdist=2 stats='./filtered_fastq/'$sampname'_stats_hhv6.txt' overwrite=TRUE t=$SLURM_CPUS_PER_TASK
+bbduk.sh in='./preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' out='./filtered_fastq/'$sampname'_unmatched.fastq.gz' outm='./filtered_fastq/'$sampname'_matched.fastq.gz' ref='./refs/hsv_refs.fasta' k=31 hdist=2 stats='./filtered_fastq/'$sampname'_stats_hhv6.txt' overwrite=TRUE t=$SLURM_CPUS_PER_TASK
 rm './filtered_fastq/'$sampname'_unmatched.fastq.gz' 
 mv './filtered_fastq/'$sampname'_matched.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz'
 fi
@@ -183,7 +185,7 @@ fastqc './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -o ./fastqc_repo
 printf "\n\nMapping reads to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
 mkdir -p ./mapped_reads
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bowtie2 -x $ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './mapped_reads/'$sampname'_'$ref'.sam'
+bowtie2 -x ./refs/$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './mapped_reads/'$sampname'_'$ref'.sam'
 done
 
 #Assemble with SPAdes
@@ -201,7 +203,7 @@ printf "\n\nMaking and sorting bam files ... \n\n\n"
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
 if [ -f './mapped_reads/'$sampname'_'$ref'.sam' ]
 then
-~/samtools-1.3.1/samtools view -bh -o './mapped_reads/'$sampname'_'$ref'.bam' './mapped_reads/'$sampname'_'$ref'.sam' -T $ref'.fasta'  
+~/samtools-1.3.1/samtools view -bh -o './mapped_reads/'$sampname'_'$ref'.bam' './mapped_reads/'$sampname'_'$ref'.sam' -T ./refs/$ref'.fasta'  
 rm './mapped_reads/'$sampname'_'$ref'.sam'
 ~/samtools-1.3.1/samtools sort -o './mapped_reads/'$sampname'_'$ref'.sorted.bam' './mapped_reads/'$sampname'_'$ref'.bam' 
 rm './mapped_reads/'$sampname'_'$ref'.bam' 
@@ -214,7 +216,7 @@ done
 #Map contigs to refs
 printf "\n\nMapping scaffolds to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-mugsy --directory `readlink -f './contigs/'$sampname` --prefix 'aligned_scaffolds_'$ref $ref'.fasta' `readlink -f './contigs/'$sampname'/scaffolds.fasta'`
+mugsy --directory `readlink -f './contigs/'$sampname` --prefix 'aligned_scaffolds_'$ref ./refs/$ref'.fasta' `readlink -f './contigs/'$sampname'/scaffolds.fasta'`
 sed '/^a score=0/,$d' './contigs/'$sampname'/aligned_scaffolds_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf'
 python ~/last-759/scripts/maf-convert sam -d './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
 ~/samtools-1.3.1/samtools view -bS -T $ref'.fasta' './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam' | ~/samtools-1.3.1/samtools sort > './contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
@@ -229,7 +231,7 @@ printf "\n\nMaking a reference sequence for remapping ... \n\n\n"
 mkdir -p ./ref_for_remapping
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
 bamfname='./contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
-reffname=$ref'.fasta'
+reffname=./refs/$ref'.fasta'
 Rscript --vanilla hsv_make_reference.R bamfname=\"$bamfname\" reffname=\"$reffname\" 
 done
 
@@ -284,11 +286,11 @@ fi
 #Annotate
 printf "\n\nAnnotating with prokka ... \n\n\n"
 mkdir -p ./annotations_prokka_hsv1
-prokka --outdir './annotations_prokka_hsv1/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 1' --species '' --proteins HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv1/'$sampname/*.fa
+prokka --outdir './annotations_prokka_hsv1/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 1' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv1/'$sampname/*.fa
 mkdir -p ./annotations_prokka_hsv2sd90e
-prokka --outdir './annotations_prokka_hsv2sd90e/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2sd90e/'$sampname/*.fa
+prokka --outdir './annotations_prokka_hsv2sd90e/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2sd90e/'$sampname/*.fa
 mkdir -p ./annotations_prokka_hsv2hg52
-prokka --outdir './annotations_prokka_hsv2hg52/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2hg52/'$sampname/*.fa
+prokka --outdir './annotations_prokka_hsv2hg52/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2hg52/'$sampname/*.fa
 
 #Clean up some files
 rm './ref_for_remapping/'$sampname*'.fai'
