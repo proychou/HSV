@@ -62,15 +62,6 @@ done
 printf "Input arguments:\n\n"
 echo $@
 
-#For testing single-end
-# in_fastq='/fh/fast/jerome_k/HHV6_PR/fastq_files/2017_08_10//ABI-HHV6A_S385_L001_R1_001.fastq.gz' 
-# paired="false"
-# filter="true"
-#For testing paired-end
-# in_fastq_r1='/fh/fast/jerome_k/HHV6_PR/fastq_files/2017_08_10/HHV6-MT4-PFAR1_S137_L001_R1_001.fastq.gz'
-# in_fastq_r2='/fh/fast/jerome_k/HHV6_PR/fastq_files/2017_08_10/HHV6-MT4-PFAR1_S137_L001_R2_001.fastq.gz'
-# paired="true"
-
 
 ##  PAIRED-END  ##
 if [[ $paired == "true" ]]
@@ -99,13 +90,13 @@ printf "\n\nQuality trimming ... \n\n\n"
 mkdir -p ./preprocessed_fastq
 bbduk.sh in1='./trimmed_fastq/'$sampname'_trimmed_r1.fastq.gz' in2='./trimmed_fastq/'$sampname'_trimmed_r2.fastq.gz' out1='./preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' out2='./preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' t=$SLURM_CPUS_PER_TASK qtrim=rl trimq=20 maq=10 overwrite=TRUE minlen=20
 
-#Use bbduk to filter reads that match HHV6 genomes
+#Use bbduk to filter reads that match HSV genomes
 if [[ $filter == "true" ]]
 then
-printf "\n\nK-mer filtering using hhv6_refs.fasta ... \n\n\n"
+printf "\n\nK-mer filtering using hsv_refs.fasta ... \n\n\n"
 mkdir -p ./filtered_fastq/
 
-bbduk.sh in1='./preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' in2='./preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' out1='./filtered_fastq/'$sampname'_unmatched_r1.fastq.gz' out2='./filtered_fastq/'$sampname'_unmatched_r2.fastq.gz' outm1='./filtered_fastq/'$sampname'_matched_r1.fastq.gz' outm2='./filtered_fastq/'$sampname'_matched_r2.fastq.gz' ref='./hsv_refs.fasta' k=31 hdist=2 stats='./filtered_fastq/'$sampname'_stats_hhv6.txt' overwrite=TRUE t=$SLURM_CPUS_PER_TASK
+bbduk.sh in1='./preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' in2='./preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' out1='./filtered_fastq/'$sampname'_unmatched_r1.fastq.gz' out2='./filtered_fastq/'$sampname'_unmatched_r2.fastq.gz' outm1='./filtered_fastq/'$sampname'_matched_r1.fastq.gz' outm2='./filtered_fastq/'$sampname'_matched_r2.fastq.gz' ref='./refs/hsv_refs.fasta' k=31 hdist=2 stats='./filtered_fastq/'$sampname'_stats_hsv.txt' overwrite=TRUE t=$SLURM_CPUS_PER_TASK
 
 rm './filtered_fastq/'$sampname'_unmatched_r1.fastq.gz' './filtered_fastq/'$sampname'_unmatched_r2.fastq.gz' 
 mv './filtered_fastq/'$sampname'_matched_r1.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz'
@@ -166,12 +157,12 @@ bbduk.sh in='./trimmed_fastq/'$sampname'_trimmed.fastq.gz' out='./preprocessed_f
 mkdir -p ./fastqc_reports_trimmed
 fastqc './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -o ./fastqc_reports_trimmed
 
-#Use bbduk to filter reads that match HHV6 genomes
+#Use bbduk to filter reads that match HSV genomes
 if [[ $filter == "true" ]]
 then
-printf "\n\nK-mer filtering using hhv6_refs.fasta ... \n\n\n"
+printf "\n\nK-mer filtering using hsv_refs.fasta ... \n\n\n"
 mkdir -p ./filtered_fastq/
-bbduk.sh in='./preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' out='./filtered_fastq/'$sampname'_unmatched.fastq.gz' outm='./filtered_fastq/'$sampname'_matched.fastq.gz' ref='./refs/hsv_refs.fasta' k=31 hdist=2 stats='./filtered_fastq/'$sampname'_stats_hhv6.txt' overwrite=TRUE t=$SLURM_CPUS_PER_TASK
+bbduk.sh in='./preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' out='./filtered_fastq/'$sampname'_unmatched.fastq.gz' outm='./filtered_fastq/'$sampname'_matched.fastq.gz' ref='./refs/hsv_refs.fasta' k=31 hdist=2 stats='./filtered_fastq/'$sampname'_stats_hsv.txt' overwrite=TRUE t=$SLURM_CPUS_PER_TASK
 rm './filtered_fastq/'$sampname'_unmatched.fastq.gz' 
 mv './filtered_fastq/'$sampname'_matched.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz'
 fi
