@@ -76,7 +76,7 @@ sampname=$(basename ${in_fastq_r1%%_R1_001.fastq*})
 #FastQC report on raw reads
 printf "\n\nFastQC report on raw reads ... \n\n\n"
 mkdir -p ./fastqc_reports_raw
-fastqc $in_fastq_r1 $in_fastq_r2 -o ./fastqc_reports_raw
+fastqc -o ./fastqc_reports_raw -t $SLURM_CPUS_PER_TASK $in_fastq_r1 $in_fastq_r2 
 
 #Adapter trimming with bbduk
 printf "\n\nAdapter trimming ... \n\n\n"
@@ -106,7 +106,7 @@ fi
 #FastQC report on processed reads
 mkdir -p ./fastqc_reports_preprocessed
 printf "\n\nFastQC report on preprocessed reads ... \n\n\n"
-fastqc './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' -o ./fastqc_reports_preprocessed
+fastqc -o ./fastqc_reports_preprocessed -t $SLURM_CPUS_PER_TASK './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' 
 
 #Map reads to reference
 printf "\n\nMapping reads to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
@@ -139,7 +139,7 @@ sampname=$(basename ${in_fastq%%_R1_001.fastq*})
 #FastQC report on raw reads
 printf "\n\nFastQC report on raw reads ... \n\n\n"
 mkdir -p ./fastqc_reports_raw
-fastqc $in_fastq -o ./fastqc_reports_raw
+fastqc -o ./fastqc_reports_raw -t $SLURM_CPUS_PER_TASK $in_fastq 
 
 #Adapter trimming with bbduk
 printf "\n\nAdapter trimming ... \n\n\n"
@@ -156,7 +156,7 @@ bbduk.sh in='./trimmed_fastq/'$sampname'_trimmed.fastq.gz' out='./preprocessed_f
 #FastQC report on processed reads
 printf "\n\nFastQC report on preprocessed reads ... \n\n\n"
 mkdir -p ./fastqc_reports_preprocessed
-fastqc './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -o ./fastqc_reports_preprocessed
+fastqc -o ./fastqc_reports_preprocessed -t $SLURM_CPUS_PER_TASK './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' 
 
 #Use bbduk to filter reads that match HSV genomes
 if [[ $filter == "true" ]]
