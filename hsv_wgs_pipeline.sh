@@ -154,8 +154,9 @@ mkdir -p ./preprocessed_fastq
 bbduk.sh in='./trimmed_fastq/'$sampname'_trimmed.fastq.gz' out='./preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' t=$SLURM_CPUS_PER_TASK qtrim=rl trimq=20 maq=10 overwrite=TRUE minlen=20
 
 #FastQC report on processed reads
-mkdir -p ./fastqc_reports_trimmed
-fastqc './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -o ./fastqc_reports_trimmed
+printf "\n\nFastQC report on preprocessed reads ... \n\n\n"
+mkdir -p ./fastqc_reports_preprocessed
+fastqc './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -o ./fastqc_reports_preprocessed
 
 #Use bbduk to filter reads that match HSV genomes
 if [[ $filter == "true" ]]
@@ -167,10 +168,6 @@ rm './filtered_fastq/'$sampname'_unmatched.fastq.gz'
 mv './filtered_fastq/'$sampname'_matched.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz'
 fi
 
-#FastQC report on processed reads
-printf "\n\nFastQC report on preprocessed reads ... \n\n\n"
-mkdir -p ./fastqc_reports_preprocessed
-fastqc './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -o ./fastqc_reports_preprocessed
 
 #Map reads to reference
 printf "\n\nMapping reads to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
