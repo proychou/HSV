@@ -35,9 +35,6 @@
 # - add a restart option
 # - move some of the common parts of this script (between HHV6 and HSV) to ViralWGS 
 
-PATH=$PATH:$HOME/.local/bin:$HOME/SPAdes-3.9.0-Linux/bin:$HOME/mugsy_x86-64-v1r2.2:$HOME/last759/:$HOME/bbmap/:$HOME/samtools-1.3.1/:
-export MUGSY_INSTALL=$HOME/mugsy_x86-64-v1r2.2
-export PATH=$PATH:$EBROOTPROKKA/bin:$EBROOTPROKKA/db:
 echo "Number of cores used: "$SLURM_CPUS_PER_TASK
 # echo "Path: "$PATH
 
