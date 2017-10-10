@@ -107,7 +107,7 @@ fi
 #FastQC report on processed reads
 mkdir -p ./fastqc_reports_preprocessed
 printf "\n\nFastQC report on preprocessed reads ... \n\n\n"
-fastqc -o ./fastqc_reports_preprocessed -t $SLURM_CPUS_PER_TASK './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' 
+fastqc -o ./fastqc_reports_preprocessed -t $SLURM_CPUS_PER_TASK './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' 
 fastqc -o ./fastqc_reports_preprocessed -t $SLURM_CPUS_PER_TASK './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' 
 
 #Map reads to reference
