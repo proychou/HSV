@@ -1,17 +1,8 @@
 #!/bin/bash
 #This is a reduced version of the pipeline that just makes a new consensus
-#Pavitra Roychoudhury
+#Pavitra Roychoudhury, Nov 2017
 
 #Usage: 
-#First build reference for bowtie and make a copy of the ref seqs:
-#		module load bowtie2
-# 		bowtie2-build './refs/NC_001806.2.fasta' ./refs/hsv1_ref
-# 		bowtie2-build './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52
-# 		bowtie2-build './refs/KF781518.1.fasta' ./refs/hsv2_sd90e
-# 		cp './refs/NC_001806.2.fasta' ./refs/hsv1_ref.fasta
-# 		cp './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52.fasta
-# 		cp './refs/KF781518.1.fasta' ./refs/hsv2_sd90e.fasta
-# 		cat ./refs/hsv1_ref.fasta ./refs/hsv2_ref_hg52.fasta ./refs/hsv2_sd90e.fasta > ./refs/hsv_refs.fasta
 # 		prokka-genbank_to_fasta_db ./refs/NC_001806.2.gb ./refs/NC_001798.2.gb ./refs/KF781518.1.gb > ./refs/HSV_proteins.faa
 #For paired-end library
 #		hsv1_pipeline.sh -1 yourreads_r1.fastq.gz -2 yourreads_r2.fastq.gz
@@ -23,16 +14,8 @@
 #or whatever is the number of available processors 
  
 #Load required tools
-#Note that samtools, mugsy, spades, bbmap and last are all locally installed and need to be updated manually as required
-# module load bowtie2
-# module load FastQC/0.11.5-Java-1.8.0_92
 # module load R-bundle-Bioconductor/3.5-foss-2016b-R-3.4.0-fh1
 # module load prokka/1.11-foss-2016b-BioPerl-1.7.0
-
-#To do: 
-# - replace local version of samtools with module load since these have now caught up
-# - add a restart option
-# - move some of the common parts of this script (between HHV6 and HSV) to ViralWGS 
 
 PATH=$PATH:$HOME/.local/bin:$HOME/SPAdes-3.9.0-Linux/bin:$HOME/mugsy_x86-64-v1r2.2:$HOME/last759/:$HOME/bbmap/:$HOME/samtools-1.3.1/:
 export MUGSY_INSTALL=$HOME/mugsy_x86-64-v1r2.2
@@ -113,7 +96,3 @@ mkdir -p ./annotations_prokka_hsv2sd90e
 prokka --outdir './annotations_prokka_hsv2sd90e/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2sd90e/'$sampname/*.fa
 mkdir -p ./annotations_prokka_hsv2hg52
 prokka --outdir './annotations_prokka_hsv2hg52/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2hg52/'$sampname/*.fa
-
-#Clean up some files
-rm './ref_for_remapping/'$sampname*'.fai'
-rm './ref_for_remapping/'$sampname*'.bt2'
