@@ -82,7 +82,7 @@ fastqc -o ./fastqc_reports_raw -t $SLURM_CPUS_PER_TASK $in_fastq_r2
 #Adapter trimming with bbduk
 printf "\n\nAdapter trimming ... \n\n\n"
 mkdir -p ./trimmed_fastq
-bbduk.sh in1=$in_fastq_r1 in2=$in_fastq_r2  out1='./trimmed_fastq/'$sampname'_trimmed_r1_tmp.fastq.gz' out2='./trimmed_fastq/'$sampname'_trimmed_r2_tmp.fastq.gz' ref=~/bbmap/resources/adapters.fa k=21 ktrim=r mink=4 hdist=2 tpe tbo overwrite=TRUE t=$SLURM_CPUS_PER_TASK 
+bbduk.sh in1=$in_fastq_r1 in2=$in_fastq_r2  out1='./trimmed_fastq/'$sampname'_trimmed_r1_tmp.fastq.gz' out2='./trimmed_fastq/'$sampname'_trimmed_r2_tmp.fastq.gz' ref=adapters,artifacts k=21 ktrim=r mink=4 hdist=2 tpe tbo overwrite=TRUE t=$SLURM_CPUS_PER_TASK 
 bbduk.sh in1='./trimmed_fastq/'$sampname'_trimmed_r1_tmp.fastq.gz' in2='./trimmed_fastq/'$sampname'_trimmed_r2_tmp.fastq.gz'  out1='./trimmed_fastq/'$sampname'_trimmed_r1.fastq.gz' out2='./trimmed_fastq/'$sampname'_trimmed_r2.fastq.gz' ref=~/bbmap/resources/adapters.fa k=21 ktrim=l mink=4 hdist=2 tpe tbo overwrite=TRUE t=$SLURM_CPUS_PER_TASK 
 rm './trimmed_fastq/'$sampname'_trimmed_r1_tmp.fastq.gz' './trimmed_fastq/'$sampname'_trimmed_r2_tmp.fastq.gz'
 
@@ -146,7 +146,7 @@ fastqc -o ./fastqc_reports_raw -t $SLURM_CPUS_PER_TASK $in_fastq
 #Adapter trimming with bbduk
 printf "\n\nAdapter trimming ... \n\n\n"
 mkdir -p ./trimmed_fastq
-bbduk.sh in=$in_fastq out='./trimmed_fastq/'$sampname'_trimmed_tmp.fastq.gz' ref=~/bbmap/resources/adapters.fa k=21 ktrim=r mink=4 hdist=2 overwrite=TRUE t=$SLURM_CPUS_PER_TASK 
+bbduk.sh in=$in_fastq out='./trimmed_fastq/'$sampname'_trimmed_tmp.fastq.gz' ref=adapters,artifacts k=21 ktrim=r mink=4 hdist=2 overwrite=TRUE t=$SLURM_CPUS_PER_TASK 
 bbduk.sh in='./trimmed_fastq/'$sampname'_trimmed_tmp.fastq.gz'  out='./trimmed_fastq/'$sampname'_trimmed.fastq.gz' ref=~/bbmap/resources/adapters.fa k=21 ktrim=l mink=4 hdist=2 overwrite=TRUE t=$SLURM_CPUS_PER_TASK 
 rm './trimmed_fastq/'$sampname'_trimmed_tmp.fastq.gz'
 
@@ -193,9 +193,9 @@ printf "\n\nMaking and sorting bam files ... \n\n\n"
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
 if [ -f './mapped_reads/'$sampname'_'$ref'.sam' ]
 then
-~/samtools-1.3.1/samtools view -bh -o './mapped_reads/'$sampname'_'$ref'.bam' './mapped_reads/'$sampname'_'$ref'.sam' -T ./refs/$ref'.fasta'  
+samtools view -bh -o './mapped_reads/'$sampname'_'$ref'.bam' './mapped_reads/'$sampname'_'$ref'.sam' -T ./refs/$ref'.fasta'  
 rm './mapped_reads/'$sampname'_'$ref'.sam'
-~/samtools-1.3.1/samtools sort -o './mapped_reads/'$sampname'_'$ref'.sorted.bam' './mapped_reads/'$sampname'_'$ref'.bam' 
+samtools sort -o './mapped_reads/'$sampname'_'$ref'.sorted.bam' './mapped_reads/'$sampname'_'$ref'.bam' 
 rm './mapped_reads/'$sampname'_'$ref'.bam' 
 else
 echo 'Mapping to '$ref 'failed. No sam file found'
@@ -209,7 +209,7 @@ for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
 mugsy --directory `readlink -f './contigs/'$sampname` --prefix 'aligned_scaffolds_'$ref ./refs/$ref'.fasta' `readlink -f './contigs/'$sampname'/scaffolds.fasta'`
 sed '/^a score=0/,$d' './contigs/'$sampname'/aligned_scaffolds_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf'
 python ~/last-759/scripts/maf-convert sam -d './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
-~/samtools-1.3.1/samtools view -bS -T ./refs/$ref'.fasta' './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam' | ~/samtools-1.3.1/samtools sort > './contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
+samtools view -bS -T ./refs/$ref'.fasta' './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam' | samtools sort > './contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
 rm './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
 done
 rm *.mugsy.log
@@ -249,9 +249,9 @@ fi
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
 if [ -f './remapped_reads/'$sampname'_'$ref'.sam' ]
 then
-~/samtools-1.3.1/samtools view -bh -o './remapped_reads/'$sampname'_'$ref'.bam' './remapped_reads/'$sampname'_'$ref'.sam' -T './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref'_consensus.fasta'
+samtools view -bh -o './remapped_reads/'$sampname'_'$ref'.bam' './remapped_reads/'$sampname'_'$ref'.sam' -T './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref'_consensus.fasta'
 rm './remapped_reads/'$sampname'_'$ref'.sam'
-~/samtools-1.3.1/samtools sort -o './remapped_reads/'$sampname'_'$ref'.sorted.bam' './remapped_reads/'$sampname'_'$ref'.bam'
+samtools sort -o './remapped_reads/'$sampname'_'$ref'.sorted.bam' './remapped_reads/'$sampname'_'$ref'.bam'
 rm './remapped_reads/'$sampname'_'$ref'.bam'
 mv './remapped_reads/'$sampname'_'$ref'.sorted.bam'  './remapped_reads/'$sampname'_'$ref'.bam' 
 else
