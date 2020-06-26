@@ -219,19 +219,25 @@ done
 printf "\n\nRe-mapping reads to assembled sequence ... \n\n\n"
 mkdir -p ./remapped_reads
 
+for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
+bowtie2-build './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref'_consensus.fasta' './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref
+done
+
+
 if [[ $paired == "false" ]]
 then
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bowtie2-build './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref'_consensus.fasta' './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref
-bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './remapped_reads/'$sampname'_'$ref'.sam'
+bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './remapped_reads/'$sampname'_'$ref'.sam'| samtools view -bS - > './remapped_reads/'$sampname'.bam'
+samtools sort -o './remapped_reads/'$sampname'.sorted.bam' './remapped_reads/'$sampname'.bam'
 done
 fi
  
 if [[ $paired == "true" ]]
 then
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bowtie2-build './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref'_consensus.fasta' './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref
 bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -1 './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' -2 './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './remapped_reads/'$sampname'_'$ref'.sam'
+bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} | samtools view -bS - > './remapped_reads/'$sampname'.bam'
+samtools sort -o './remapped_reads/'$sampname'.sorted.bam' './remapped_reads/'$sampname'.bam'
 done
 fi
 
