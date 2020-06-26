@@ -41,7 +41,7 @@ contigs<-contigs[width(contigs)>200]
 # cov<-unlist(lapply(names(contigs),function(x)
 #   as.numeric(strsplit(x,'_cov_')[[1]][2])))
 # contigs<-contigs[cov>10]
-scaffname_filtered<-gsub('assembly.fasta','scaffolds_filtered.fasta',scaffname)
+scaffname_filtered<-gsub('scaffolds.fasta','scaffolds_filtered.fasta',scaffname)
 writeXStringSet(contigs,scaffname_filtered)
 
 reffname<-paste0('./refs/',ref,'.fasta');

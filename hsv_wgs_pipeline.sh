@@ -12,9 +12,9 @@
 # 		cp './refs/NC_001806.2.fasta' ./refs/hsv1_ref.fasta
 # 		cp './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52.fasta
 # 		cp './refs/KF781518.1.fasta' ./refs/hsv2_sd90e.fasta
-# 		bwa index './refs/NC_001806.2.fasta' ./refs/hsv1_ref
-# 		bwa index './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52
-# 		bwa index './refs/KF781518.1.fasta' ./refs/hsv2_sd90e
+# 		bwa index ./refs/hsv1_ref.fasta
+# 		bwa index ./refs/hsv2_ref_hg52.fasta
+# 		bwa index ./refs/hsv2_sd90e.fasta
 
 # 		cat ./refs/hsv1_ref.fasta ./refs/hsv2_ref_hg52.fasta ./refs/hsv2_sd90e.fasta > ./refs/hsv_refs.fasta
 # 		prokka-genbank_to_fasta_db ./refs/NC_001806.2.gb ./refs/NC_001798.2.gb ./refs/KF781518.1.gb > ./refs/HSV_proteins.faa
@@ -211,9 +211,7 @@ done
 printf "\n\nMaking a reference sequence for remapping ... \n\n\n"
 mkdir -p ./ref_for_remapping
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bamfname='./contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
-reffname=./refs/$ref'.fasta'
-Rscript --vanilla hsv_make_reference.R bamfname=\"$bamfname\" reffname=\"$reffname\" 
+Rscript --vanilla hsv_make_reference.R sampname=\"$sampname\" ref=\"$ref\" 
 done
 
 
