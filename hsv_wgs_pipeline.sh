@@ -253,15 +253,7 @@ done
 printf "\n\nGenerating consensus sequence ... \n\n\n"
 mkdir -p ./consensus_seqs_all
 mkdir -p ./stats
-if [[ $paired == "true" ]]
-then
-Rscript --vanilla hsv_generate_consensus.R s1=\"$in_fastq_r1\"
-else
-if [[ $paired == "false" ]]
-then
-Rscript --vanilla hsv_generate_consensus.R s1=\"$in_fastq\"
-fi
-fi
+Rscript --vanilla hsv_generate_consensus.R sampname=\"$sampname\"
 
 #Annotate
 printf "\n\nAnnotating with prokka ... \n\n\n"

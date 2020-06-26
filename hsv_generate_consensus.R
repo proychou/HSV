@@ -35,7 +35,7 @@ if(length(args)==0){
 
 #Files, directories, target site
 merged_bam_folder<-'./remapped_reads/'; 
-sampname<-strsplit(basename(s1),'_R1_001.fastq*')[[1]][1];
+# sampname<-strsplit(basename(s1),'_R1_001.fastq*')[[1]][1];
 mapped_reads_folder<-'./mapped_reads/';
 con_seqs_dir<-'./consensus_seqs_all';
 
