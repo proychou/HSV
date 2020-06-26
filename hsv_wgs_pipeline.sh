@@ -12,6 +12,10 @@
 # 		cp './refs/NC_001806.2.fasta' ./refs/hsv1_ref.fasta
 # 		cp './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52.fasta
 # 		cp './refs/KF781518.1.fasta' ./refs/hsv2_sd90e.fasta
+# 		bwa index './refs/NC_001806.2.fasta' ./refs/hsv1_ref
+# 		bwa index './refs/NC_001798.2.fasta' ./refs/hsv2_ref_hg52
+# 		bwa index './refs/KF781518.1.fasta' ./refs/hsv2_sd90e
+
 # 		cat ./refs/hsv1_ref.fasta ./refs/hsv2_ref_hg52.fasta ./refs/hsv2_sd90e.fasta > ./refs/hsv_refs.fasta
 # 		prokka-genbank_to_fasta_db ./refs/NC_001806.2.gb ./refs/NC_001798.2.gb ./refs/KF781518.1.gb > ./refs/HSV_proteins.faa
 #For paired-end library
@@ -203,20 +207,7 @@ fi
 done
 
 
-#Map contigs to refs
-printf "\n\nMapping scaffolds to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
-for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-mugsy --directory `readlink -f './contigs/'$sampname` --prefix 'aligned_scaffolds_'$ref ./refs/$ref'.fasta' `readlink -f './contigs/'$sampname'/scaffolds.fasta'`
-sed '/^a score=0/,$d' './contigs/'$sampname'/aligned_scaffolds_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf'
-python ~/last-759/scripts/maf-convert sam -d './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
-samtools view -bS -T ./refs/$ref'.fasta' './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam' | samtools sort > './contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
-rm './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
-done
-rm *.mugsy.log
-
-#To do (maybe): replace mugsy step with scaffold_builder if that is better
-
-#Make new reference sequence using scaffolds
+# Now call an R script that merges assembly and mapping and ultimately makes the consensus sequence 
 printf "\n\nMaking a reference sequence for remapping ... \n\n\n"
 mkdir -p ./ref_for_remapping
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
@@ -224,6 +215,7 @@ bamfname='./contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
 reffname=./refs/$ref'.fasta'
 Rscript --vanilla hsv_make_reference.R bamfname=\"$bamfname\" reffname=\"$reffname\" 
 done
+
 
 #Remap reads to "new" reference
 printf "\n\nRe-mapping reads to assembled sequence ... \n\n\n"
