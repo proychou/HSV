@@ -39,7 +39,7 @@
 # - add a restart option
 # - move some of the common parts of this script (between HHV6 and HSV) to ViralWGS 
 
-PATH=$PATH:$HOME/.local/bin:$HOME/mugsy_x86-64-v1r2.2:$HOME/last759/:
+PATH=$PATH:$HOME/.local/bin:$HOME/mugsy_x86-64-v1r2.2:
 export MUGSY_INSTALL=$HOME/mugsy_x86-64-v1r2.2
 export PATH=$PATH:$EBROOTPROKKA/bin:$EBROOTPROKKA/db:
 echo "Number of cores used: "$SLURM_CPUS_PER_TASK
@@ -207,6 +207,17 @@ fi
 done
 
 
+printf "\n\nMapping scaffolds to reference seqs hsv1_ref, hsv2_ref_hg52 and hsv2_sd90e ... \n\n\n"
+for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
+mugsy --directory `readlink -f './contigs/'$sampname` --prefix 'aligned_scaffolds_'$ref ./refs/$ref'.fasta' `readlink -f './contigs/'$sampname'/scaffolds.fasta'`
+sed '/^a score=0/,$d' './contigs/'$sampname'/aligned_scaffolds_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf'
+maf-convert sam -d './contigs/'$sampname'/aligned_scaffolds_nonzero_'$ref'.maf' > './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
+samtools view -bS -T ./refs/$ref'.fasta' './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam' | samtools sort > './contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
+rm './contigs/'$sampname'/aligned_scaffolds_'$ref'.sam'
+done
+rm *.mugsy.log
+
+
 # Now call an R script that merges assembly and mapping and ultimately makes the consensus sequence 
 printf "\n\nMaking a reference sequence for remapping ... \n\n\n"
 mkdir -p ./ref_for_remapping
@@ -227,31 +238,26 @@ done
 if [[ $paired == "false" ]]
 then
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './remapped_reads/'$sampname'_'$ref'.sam'| samtools view -bS - > './remapped_reads/'$sampname'.bam'
-samtools sort -o './remapped_reads/'$sampname'.sorted.bam' './remapped_reads/'$sampname'.bam'
+bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} | samtools view -bS - > './remapped_reads/'$sampname'_'$ref'.bam'
 done
 fi
  
 if [[ $paired == "true" ]]
 then
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -1 './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' -2 './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' -p ${SLURM_CPUS_PER_TASK} -S './remapped_reads/'$sampname'_'$ref'.sam'
-bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -U './preprocessed_fastq/'$sampname'_preprocessed.fastq.gz' -p ${SLURM_CPUS_PER_TASK} | samtools view -bS - > './remapped_reads/'$sampname'.bam'
-samtools sort -o './remapped_reads/'$sampname'.sorted.bam' './remapped_reads/'$sampname'.bam'
+bowtie2 -x './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref -1 './preprocessed_fastq/'$sampname'_preprocessed_paired_r1.fastq.gz' -2 './preprocessed_fastq/'$sampname'_preprocessed_paired_r2.fastq.gz' -p ${SLURM_CPUS_PER_TASK} | samtools view -bS - > './remapped_reads/'$sampname'_'$ref'.bam'
 done
 fi
 
 #Make sorted bam
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-if [ -f './remapped_reads/'$sampname'_'$ref'.sam' ]
+if [ -f './remapped_reads/'$sampname'_'$ref'.bam' ]
 then
-samtools view -bh -o './remapped_reads/'$sampname'_'$ref'.bam' './remapped_reads/'$sampname'_'$ref'.sam' -T './ref_for_remapping/'$sampname'_aligned_scaffolds_'$ref'_consensus.fasta'
-rm './remapped_reads/'$sampname'_'$ref'.sam'
 samtools sort -o './remapped_reads/'$sampname'_'$ref'.sorted.bam' './remapped_reads/'$sampname'_'$ref'.bam'
 rm './remapped_reads/'$sampname'_'$ref'.bam'
 mv './remapped_reads/'$sampname'_'$ref'.sorted.bam'  './remapped_reads/'$sampname'_'$ref'.bam' 
 else
-echo 'No sam file found'
+echo 'No bam file found'
 fi
 done
 
