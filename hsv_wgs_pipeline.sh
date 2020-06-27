@@ -218,11 +218,13 @@ done
 rm *.mugsy.log
 
 
-# Now call an R script that merges assembly and mapping and ultimately makes the consensus sequence 
+#Make new reference sequence using scaffolds
 printf "\n\nMaking a reference sequence for remapping ... \n\n\n"
 mkdir -p ./ref_for_remapping
 for ref in hsv1_ref hsv2_ref_hg52 hsv2_sd90e; do
-Rscript --vanilla hsv_make_reference.R sampname=\"$sampname\" ref=\"$ref\" 
+bamfname='./contigs/'$sampname'/'$sampname'_aligned_scaffolds_'$ref'.bam'
+reffname=./refs/$ref'.fasta'
+Rscript --vanilla hsv_make_reference.R bamfname=\"$bamfname\" reffname=\"$reffname\" 
 done
 
 
