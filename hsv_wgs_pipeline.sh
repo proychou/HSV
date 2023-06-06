@@ -27,17 +27,13 @@
 #		SLURM_CPUS_PER_TASK=8
 #or whatever is the number of available processors 
  
-#Load required tools
-#Note that samtools, mugsy, spades, bbmap and last are all locally installed and need to be updated manually as required
+#Load required tools using module load, check for updated versions using module spider
+#Note that mugsy is locally installed and need to be updated manually as required
 # module load bowtie2
 # module load FastQC/0.11.5-Java-1.8.0_92
 # module load R-bundle-Bioconductor/3.5-foss-2016b-R-3.4.0-fh1
 # module load prokka/1.11-foss-2016b-BioPerl-1.7.0
 
-#To do: 
-# - replace local version of samtools with module load since these have now caught up
-# - add a restart option
-# - move some of the common parts of this script (between HHV6 and HSV) to ViralWGS 
 
 PATH=$PATH:$HOME/.local/bin:$HOME/mugsy_x86-64-v1r2.2:
 export MUGSY_INSTALL=$HOME/mugsy_x86-64-v1r2.2
