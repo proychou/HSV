@@ -75,7 +75,7 @@ then
 echo "Missing input argument."
 fi
 
-sampname=$(basename ${in_fastq_r1%%_R1_001.fastq*})
+sampname=$(basename ${in_fastq_r1%%_R1*.fastq*})
 
 #FastQC report on raw reads
 printf "\n\nFastQC report on raw reads ... \n\n\n"
