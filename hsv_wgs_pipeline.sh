@@ -265,14 +265,14 @@ mkdir -p ./consensus_seqs_all
 mkdir -p ./stats
 Rscript --vanilla hsv_generate_consensus.R sampname=\"$sampname\"
 
-#Annotate
-printf "\n\nAnnotating with prokka ... \n\n\n"
-mkdir -p ./annotations_prokka_hsv1
-prokka --outdir './annotations_prokka_hsv1/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 1' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv1/'$sampname/*.fa
-mkdir -p ./annotations_prokka_hsv2sd90e
-prokka --outdir './annotations_prokka_hsv2sd90e/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2sd90e/'$sampname/*.fa
-mkdir -p ./annotations_prokka_hsv2hg52
-prokka --outdir './annotations_prokka_hsv2hg52/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2hg52/'$sampname/*.fa
+#Annotate--annotation turned off for now due to issues with prokka installation on HPC
+#printf "\n\nAnnotating with prokka ... \n\n\n"
+#mkdir -p ./annotations_prokka_hsv1
+#prokka --outdir './annotations_prokka_hsv1/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 1' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv1/'$sampname/*.fa
+#mkdir -p ./annotations_prokka_hsv2sd90e
+#prokka --outdir './annotations_prokka_hsv2sd90e/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2sd90e/'$sampname/*.fa
+#mkdir -p ./annotations_prokka_hsv2hg52
+#prokka --outdir './annotations_prokka_hsv2hg52/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2hg52/'$sampname/*.fa
 
 #Clean up some files
 rm './ref_for_remapping/'$sampname*'.fai'
