@@ -275,5 +275,5 @@ Rscript --vanilla hsv_generate_consensus.R sampname=\"$sampname\"
 #prokka --outdir './annotations_prokka_hsv2hg52/'$sampname'/' --force --kingdom 'Viruses' --genus 'Human herpesvirus 2' --species '' --proteins ./refs/HSV_proteins.faa --locustag '' --strain $sampname --prefix $sampname --gcode 1 --evalue 1e-9 './annotations_prokka_hsv2hg52/'$sampname/*.fa
 
 #Clean up some files
-rm './ref_for_remapping/'$sampname*'.fai'
+#rm './ref_for_remapping/'$sampname*'.fai'
 rm './ref_for_remapping/'$sampname*'.bt2'
